@@ -17,8 +17,15 @@ while True:
         first_frame = gray_frame_gau
 
     delta_frame = cv2.absdiff(first_frame, gray_frame_gau)
-    cv2.imshow("My video", delta_frame)
-    print(delta_frame)
+
+    # if a pixel is greater than 60 it will be set to 255,
+    # for threshold if we use black and white
+    # we use [1] as an index to get the 2nd item
+    # inscrease the value (exp 60) to have only white pixels for the dynamic value
+    thresh_frame = cv2.threshold(delta_frame, 60, 255, cv2.THRESH_BINARY)[1]
+    # dilate is to process the frame
+    dil_frame = cv2.dilate(thresh_frame, None, iterations=2)
+    cv2.imshow("My video", dil_frame)
 
     key = cv2.waitKey(1)
 
