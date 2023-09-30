@@ -1,5 +1,6 @@
 import cv2
 import time
+from emailing import send_email
 
 # we create a script that runs the webcam and pressing "q" will stop it
 
@@ -7,7 +8,9 @@ video = cv2.VideoCapture(0)
 time.sleep(1)
 
 first_frame = None
+status_list = []
 while True:
+    status = 0
     check1, frame = video.read()
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # converting to grayscale pixels
@@ -34,7 +37,19 @@ while True:
         if cv2.contourArea(contour) < 10000:
             continue
         x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 3)
+        rectangle = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 3)
+        if rectangle.any():
+            status = 1
+            send_email()
+
+    status_list.append(status)
+    # we extract only the last 2 items from the list
+    status_list = status_list[-2:]
+    # if detected object exits the frame
+    if status_list[0] == 1 and status_list[1] == 0:
+
+        send_email()
+    print(status_list)
 
     cv2.imshow("Video", frame)
     key = cv2.waitKey(1)
