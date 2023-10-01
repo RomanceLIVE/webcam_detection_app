@@ -1,5 +1,6 @@
 import cv2
 import time
+import glob
 from emailing import send_email
 
 # we create a script that runs the webcam and pressing "q" will stop it
@@ -9,9 +10,12 @@ time.sleep(1)
 
 first_frame = None
 status_list = []
+count = 1
+
 while True:
     status = 0
     check1, frame = video.read()
+
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # converting to grayscale pixels
     gray_frame_gau = cv2.GaussianBlur(gray_frame, (21, 21), 0)
@@ -37,9 +41,17 @@ while True:
         if cv2.contourArea(contour) < 10000:
             continue
         x, y, w, h = cv2.boundingRect(contour)
-        rectangle = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 3)
+        rectangle = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
         if rectangle.any():
             status = 1
+            # store img
+            cv2.imwrite(f"images/{count}.png", frame)
+            count += 1
+            # we produce a list of images
+            all_images = glob.glob("images/*.png")
+            # we prepare only one image from the list using an int
+            index = int(len(all_images) / 2)
+            image_object = all_images[index]
             send_email()
 
     status_list.append(status)
@@ -47,7 +59,6 @@ while True:
     status_list = status_list[-2:]
     # if detected object exits the frame
     if status_list[0] == 1 and status_list[1] == 0:
-
         send_email()
     print(status_list)
 
