@@ -8,6 +8,7 @@ receiver = "robert.horvath93@gmail.com"
 
 
 def send_email(image_path):
+    print("send_email function started")
     email_message = EmailMessage()
     email_message["Subject"] = "Object detected"
     email_message.set_content("An object has been detected !")
@@ -22,6 +23,7 @@ def send_email(image_path):
     gmail.login(sender, password)
     gmail.sendmail(sender, receiver, email_message.as_string())
     gmail.quit()
+    print("send_email function ended")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,9 @@
 import cv2
 import time
 import glob
+import os
 from emailing import send_email
+from threading import Thread
 
 # we create a script that runs the webcam and pressing "q" will stop it
 
@@ -11,6 +13,16 @@ time.sleep(1)
 first_frame = None
 status_list = []
 count = 1
+
+
+# function to clean image directory
+def clean_folder():
+    print("clean_folder function started")
+    images = glob.glob("images/*.png")
+    for image in images:
+        os.remove(image)
+    print("clean_folder function ended")
+
 
 while True:
     status = 0
@@ -52,14 +64,20 @@ while True:
             # we prepare only one image from the list using an int
             index = int(len(all_images) / 2)
             image_object = all_images[index]
-            send_email()
 
     status_list.append(status)
     # we extract only the last 2 items from the list
     status_list = status_list[-2:]
     # if detected object exits the frame
     if status_list[0] == 1 and status_list[1] == 0:
-        send_email()
+        email_thread = Thread(target=send_email, args=(image_object,))  # added a comma to make it a tuple
+        email_thread.daemon = True
+        clean_thread = Thread(target=clean_folder)
+        clean_thread.daemon = True
+
+        email_thread.start()
+        clean_thread.start()
+
     print(status_list)
 
     cv2.imshow("Video", frame)
@@ -69,3 +87,7 @@ while True:
         break
 
 video.release()
+
+
+
+
