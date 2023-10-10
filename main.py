@@ -19,12 +19,12 @@ count = 1
 
 
 # Function to clean the image directory
-def clean_folder():
-    print("clean_folder function started")
-    images = glob.glob("images/*.png")
+def clean_folder(images):
+    print(f"Cleaning the {images} directory...")
+    images = glob.glob(f"{images}/*.png")
     for image in images:
         os.remove(image)
-    print("clean_folder function ended")
+    print(f"{images} directory cleaned")
 
 
 # Main loop to process the webcam feed
@@ -100,3 +100,6 @@ while True:
 
 # Release the video
 video.release()
+
+# Clean the image directory
+clean_folder("images")
